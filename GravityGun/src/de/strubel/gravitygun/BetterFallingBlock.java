@@ -2,6 +2,9 @@ package de.strubel.gravitygun;
 
 import java.util.Iterator;
 
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
@@ -32,29 +35,30 @@ public class BetterFallingBlock extends EntityFallingBlock {
     @Override
     public void h() {
     	
-        if (this.id.getMaterial() == Material.AIR) {
-        } else {
-            this.lastX = this.locX;
-            this.lastY = this.locY;
-            this.lastZ = this.locZ;
-            ++this.b;
-            this.motY -= 0.03999999910593033D;
-            this.move(this.motX, this.motY, this.motZ);
-            this.motX *= 0.9800000190734863D;
-            this.motY *= 0.9800000190734863D;
-            this.motZ *= 0.9800000190734863D;
-            if (!this.world.isStatic) {
-                int i = MathHelper.floor(this.locX);
-                int j = MathHelper.floor(this.locY);
-                int k = MathHelper.floor(this.locZ);
-                
-                if (this.b == 1) {
-                    if (this.world.getType(i, j, k) != this.id) {
-                        return;
-                    }
+            if (this.id.getMaterial() == Material.AIR) {
+                this.die();
+            } else {
+                this.lastX = this.locX;
+                this.lastY = this.locY;
+                this.lastZ = this.locZ;
+                ++this.b;
+                this.motY -= 0.03999999910593033D;
+                this.move(this.motX, this.motY, this.motZ);
+                this.motX *= 0.9800000190734863D;
+                this.motY *= 0.9800000190734863D;
+                this.motZ *= 0.9800000190734863D;
+                if (!this.world.isStatic) {
+                    int i = MathHelper.floor(this.locX);
+                    int j = MathHelper.floor(this.locY);
+                    int k = MathHelper.floor(this.locZ);
 
-                    this.world.setAir(i, j, k);
-                }
+                    if (this.b == 1) {
+                        if (this.world.getType(i, j, k) != this.id) {
+                            return;
+                        }
+
+                        this.world.setAir(i, j, k);
+                    }
 
                 if (this.onGround) {
                 	
@@ -66,9 +70,24 @@ public class BetterFallingBlock extends EntityFallingBlock {
                 			
                 			if (pr.contains(this.getBukkitEntity().getLocation().getBlockX(), this.getBukkitEntity().getLocation().getBlockY(), this.getBukkitEntity().getLocation().getBlockZ())) {
                 				
-                				this.die();
+                				if (GravityGunMain.thrown.get(this) != null) {
+                					
+                					Player p = Bukkit.getPlayerExact(GravityGunMain.thrown.get(this));
+                					
+                					if (!(GravityGunMain.getWordGuard().canBuild(p, this.getBukkitEntity().getWorld().getBlockAt(this.getBukkitEntity().getLocation().getBlockX(), this.getBukkitEntity().getLocation().getBlockY(), this.getBukkitEntity().getLocation().getBlockZ())))) {
+                						
+                						this.die();
+                						
+                						return;
+                					}
+                					
+                				} else {
+                					
+                					this.die();
+                					
+                					return;
+                				}
                 				
-                				return;
                 			}
                 			
                 		}
@@ -79,11 +98,9 @@ public class BetterFallingBlock extends EntityFallingBlock {
                     this.motZ *= 0.699999988079071D;
                     this.motY *= -0.5D;
                     if (this.world.getType(i, j, k) != Blocks.PISTON_MOVING) {
+                        this.die();
                         if (!this.f && this.world.mayPlace(this.id, i, j, k, true, 1, (Entity) null, (ItemStack) null) && !BlockFalling.canFall(this.world, i, j - 1, k) && this.world.setTypeAndData(i, j, k, this.id, this.data, 3)) {
-                            
-                        	this.die();
-                        	
-                        	if (this.id instanceof BlockFalling) {
+                            if (this.id instanceof BlockFalling) {
                                 ((BlockFalling) this.id).a(this.world, i, j, k, this.data);
                             }
 
@@ -94,7 +111,6 @@ public class BetterFallingBlock extends EntityFallingBlock {
                                     NBTTagCompound nbttagcompound = new NBTTagCompound();
 
                                     tileentity.b(nbttagcompound);
-                                    
                                     @SuppressWarnings("rawtypes")
 									Iterator iterator = this.tileEntityData.c().iterator();
 
@@ -119,10 +135,11 @@ public class BetterFallingBlock extends EntityFallingBlock {
                     if (this.dropItem) {
                         this.a(new ItemStack(this.id, 1, this.id.getDropData(this.data)), 0.0F);
                     }
-
                 }
             }
         }
     }
+
+
     
 }

@@ -8,12 +8,12 @@ import net.minecraft.server.v1_7_R1.World;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.craftbukkit.v1_7_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_7_R1.entity.CraftFallingSand;
 import org.bukkit.craftbukkit.v1_7_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.Bat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
@@ -72,32 +72,16 @@ public class PlayerInteractListener implements Listener {
 			if (s.equals(split[1])) {
 				GravityGun g = GravityGunMain.reg.get(s);
 				
-//				if (!(p.hasPermission("gravitygun.use." + s))) {
-//					
-//					if (!(GravityGunMain.map.containsKey(p.getName())) && e.getClickedBlock() == null) {
-//						e.setCancelled(true);
-//						return;
-//					}
-//					
-//					p.sendMessage("§4You don't have permission to use this GravityGun!");
-//					e.setCancelled(true);
-//					return;
-//				}
-				
-				for (Entity ent : p.getNearbyEntities(10, 10, 10)) {
+				if (!(p.hasPermission("gravitygun.use." + s))) {
 					
-					if (ent instanceof LivingEntity) {
-						
-						if (((LivingEntity)ent).getCustomName() != null) {
-						
-							if (((LivingEntity)ent).getCustomName().equals("invulnerable")) {
-							
-								ent.remove();
-							}
-						
-						}
+					if (!(GravityGunMain.map.containsKey(p.getName())) && e.getClickedBlock() == null) {
+						e.setCancelled(true);
+						return;
 					}
 					
+					p.sendMessage("§4You don't have permission to use this GravityGun!");
+					e.setCancelled(true);
+					return;
 				}
 				
 				if (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) {
@@ -141,6 +125,8 @@ public class PlayerInteractListener implements Listener {
 									
 									ent.setVelocity(v.multiply(plugin.getConfig().getDouble("Vector")));
 									p.getWorld().playSound(p.getLocation(), Sound.valueOf(plugin.getConfig().getString("Sound").toUpperCase()), plugin.getConfig().getInt("Sound-volume"), plugin.getConfig().getInt("Sound-pitch"));
+									
+									GravityGunMain.thrown.put(((CraftFallingSand) ent).getHandle(), p.getName());
 									
 								}
 								

@@ -4,18 +4,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+import net.minecraft.server.v1_7_R1.EntityFallingBlock;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Bat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -33,7 +32,8 @@ public class GravityGunMain extends JavaPlugin {
 	public static int moveid;
 	public static int invisibiltyid;
 	
-	public static HashMap<String, Bat> map = new HashMap<>();
+	public static HashMap<String, Entity> map = new HashMap<>();
+	public static HashMap<EntityFallingBlock, String> thrown = new HashMap<>();
 	
 	public static final UUID ID = UUID.fromString("5f473430-3275-4951-abc9-d39f4be8ce26");
 	
@@ -155,6 +155,8 @@ public class GravityGunMain extends JavaPlugin {
 		this.getServer().getPluginManager().registerEvents(new PlayerLeaveListener(), this);
 		this.getServer().getPluginManager().registerEvents(new PlayerItemHeldListener(), this);
 		
+		this.getCommand("gravitygun").setExecutor(new GravityGunCommand());
+		
 		this.getConfig().addDefault("Movement-update-intervall", 5);
 		this.getConfig().addDefault("Sound", "note_pling");
 		this.getConfig().addDefault("Sound-pitch", 1);
@@ -202,34 +204,6 @@ public class GravityGunMain extends JavaPlugin {
     	}
     	
     	return loc;
-    	
-    }
-    
-    @SuppressWarnings("deprecation")
-	public static Entity getTargetEntity(Player p) {
-    	
-    	for (Block targetBlock : p.getLineOfSight(null, 6)) {
-		
-        Location blockLoc = targetBlock.getLocation();
-        double bx = blockLoc.getX();
-        double by = blockLoc.getY();
-        double bz = blockLoc.getZ();
-        List<Entity> e = p.getNearbyEntities(6, 6, 6);
-   
-        for (Entity entity : e) {
-            Location loc = entity.getLocation();
-            double ex = loc.getX();
-            double ey = loc.getY();
-            double ez = loc.getZ();
-       
-            if ((bx-1.5 <= ex && ex <= bx+2) && (bz-1.5 <= ez && ez <= bz+2) && (by-1 <= ey && ey <= by+2.5)) {
-        		return entity;
-            }
-        }
-    	
-    	}
-    	
-        return null;
     	
     }
     

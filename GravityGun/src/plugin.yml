@@ -4,3 +4,9 @@ version: 1.2
 main: de.strubel.gravitygun.GravityGunMain
 
 softdepend: [WorldGuard,LWC]
+
+commands:
+  gravitygun:
+    description: Gives the player a GravityGun
+    usage: /gravitygun <name> [player]
+    permission: gravitygun.command.give
