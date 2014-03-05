@@ -36,7 +36,7 @@ public class PlayerInteractEntityListener implements Listener {
 	@EventHandler
 	public void onPlayerInteract(final PlayerInteractEntityEvent e) {
 		
-		Bukkit.getScheduler().scheduleSyncDelayedTask(Bukkit.getPluginManager().getPlugin("GravityGun"), new Runnable() {
+		Bukkit.getScheduler().scheduleSyncDelayedTask(Bukkit.getPluginManager().getPlugin("GravityMachine"), new Runnable() {
 
 			@Override
 			public void run() {

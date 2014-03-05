@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import net.minecraft.server.v1_7_R1.Block;
 import net.minecraft.server.v1_7_R1.World;
+
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.craftbukkit.v1_7_R1.CraftWorld;
@@ -40,7 +41,6 @@ public class PlayerInteractListener implements Listener {
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent e) {
 		
-		
 		if (e.getAction() == Action.PHYSICAL) {
 			return;
 		}
@@ -72,17 +72,17 @@ public class PlayerInteractListener implements Listener {
 			if (s.equals(split[1])) {
 				GravityGun g = GravityGunMain.reg.get(s);
 				
-				if (!(p.hasPermission("gravitygun.use." + s))) {
-					
-					if (!(GravityGunMain.map.containsKey(p.getName())) && e.getClickedBlock() == null) {
-						e.setCancelled(true);
-						return;
-					}
-					
-					p.sendMessage("§4You don't have permission to use this GravityGun!");
-					e.setCancelled(true);
-					return;
-				}
+//				if (!(p.hasPermission("gravitygun.use." + s))) {
+//					
+//					if (!(GravityGunMain.map.containsKey(p.getName())) && e.getClickedBlock() == null) {
+//						e.setCancelled(true);
+//						return;
+//					}
+//					
+//					p.sendMessage("§4You don't have permission to use this GravityGun!");
+//					e.setCancelled(true);
+//					return;
+//				}
 				
 				for (Entity ent : p.getNearbyEntities(10, 10, 10)) {
 					
@@ -171,6 +171,20 @@ public class PlayerInteractListener implements Listener {
 					
 					if (ent.getPassenger() instanceof FallingBlock) {
 						
+						if (GravityGunMain.getLWC() != null && !(GravityGunMain.getWordGuard().canBuild(p, ent.getLocation().getBlock()))) {
+							
+							p.sendMessage("§4You don't have permission to place the block here!");
+							return;
+							
+						}
+						
+						if (GravityGunMain.getLWC() != null && !(GravityGunMain.getLWC().canAccessProtection(p, ent.getLocation().getBlock()))) {
+							
+							p.sendMessage("§4You don't have permission to place the block here!");
+							return;
+							
+						}
+						
 						FallingBlock fb = (FallingBlock) ent.getPassenger();
 					
 					org.bukkit.block.Block b = ent.getWorld().getBlockAt(ent.getLocation());
@@ -202,6 +216,27 @@ public class PlayerInteractListener implements Listener {
 				}
 				if (!(g.getBlockpickupexeptions().contains(e.getClickedBlock().getType().toString())) || ((g.getBlockpickupexeptions().contains("ALL")))) {
 					if (g.getBlockpickup().contains(e.getClickedBlock().getType().toString()) || g.getBlockpickup().contains("ALL")) {
+						
+						if (!(GravityGunMain.getWordGuard() == null)) {
+						
+						if (!(GravityGunMain.getWordGuard().canBuild(p, e.getClickedBlock().getLocation()))) {
+							
+							p.sendMessage("§4You don't have permission to pick this block up!");
+							return;
+							
+						}
+						
+						}
+						if (!(GravityGunMain.getLWC() == null)) {
+						
+						if (GravityGunMain.getLWC() != null && !(GravityGunMain.getLWC().canAccessProtection(p, e.getClickedBlock()))) {
+							
+							p.sendMessage("§4You don't have permission to pick this block up!");
+							return;
+							
+						}
+						}
+						
 						World mcWorld = ((CraftWorld)e.getPlayer().getWorld()).getHandle();
 						
 						NewBat bat = new NewBat(mcWorld);

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -19,8 +20,13 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
+
+import com.griefcraft.lwc.LWC;
+
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 public class GravityGunMain extends JavaPlugin {
 	
@@ -45,6 +51,12 @@ public class GravityGunMain extends JavaPlugin {
 		log = this.getLogger();
 		
 		CustomEntityType.registerEntities();
+		
+		if (getWordGuard() == null) {
+			log.warning("An error occurd while hooking into WorldGuard! Be sure you have installed the lasted version!");
+		}else {
+			log.info("Successfull hooked into WorldGuard!");
+		}
 		
 		if (con.getList("GravityGuns") == null) {
 			reg = new HashMap<>();
@@ -231,4 +243,26 @@ public class GravityGunMain extends JavaPlugin {
         
     }
 	
+    public static WorldGuardPlugin getWordGuard() {
+    	
+    	Plugin plug = Bukkit.getPluginManager().getPlugin("WorldGuard");
+    	
+    	if (plug == null || !(plug instanceof WorldGuardPlugin)) {
+    		return null;
+    	}
+    	
+    	return (WorldGuardPlugin) plug;
+    }
+    
+    public static LWC getLWC() {
+    	
+    	Plugin plug = Bukkit.getPluginManager().getPlugin("LWC");
+    	
+    	if (plug == null || !(plug instanceof LWC)) {
+    		return null;
+    	}
+    	
+    	return (LWC) plug;
+    }
+    
 }
