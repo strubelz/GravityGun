@@ -6,7 +6,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 import net.minecraft.server.v1_7_R1.Block;
 import net.minecraft.server.v1_7_R1.BlockFalling;
@@ -65,16 +64,12 @@ public class BetterFallingBlock extends EntityFallingBlock {
                 	if (GravityGunMain.getWordGuard() != null) {
                 		
                 		WorldGuardPlugin wg = GravityGunMain.getWordGuard();
-                		
-                		for (ProtectedRegion pr : wg.getRegionManager(this.getBukkitEntity().getWorld()).getRegions().values()) {
-                			
-                			if (pr.contains(this.getBukkitEntity().getLocation().getBlockX(), this.getBukkitEntity().getLocation().getBlockY(), this.getBukkitEntity().getLocation().getBlockZ())) {
                 				
                 				if (GravityGunMain.thrown.get(this) != null) {
                 					
                 					Player p = Bukkit.getPlayerExact(GravityGunMain.thrown.get(this));
                 					
-                					if (!(GravityGunMain.getWordGuard().canBuild(p, this.getBukkitEntity().getWorld().getBlockAt(this.getBukkitEntity().getLocation().getBlockX(), this.getBukkitEntity().getLocation().getBlockY(), this.getBukkitEntity().getLocation().getBlockZ())))) {
+                					if (!(wg.canBuild(p, this.getBukkitEntity().getWorld().getBlockAt(this.getBukkitEntity().getLocation().getBlockX(), this.getBukkitEntity().getLocation().getBlockY(), this.getBukkitEntity().getLocation().getBlockZ())))) {
                 						
                 						this.die();
                 						
@@ -89,10 +84,6 @@ public class BetterFallingBlock extends EntityFallingBlock {
                 				}
                 				
                 			}
-                			
-                		}
-                		
-                	}
                 	
                     this.motX *= 0.699999988079071D;
                     this.motZ *= 0.699999988079071D;

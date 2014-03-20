@@ -13,6 +13,7 @@ import net.minecraft.server.v1_7_R1.EntityFallingBlock;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.CreatureSpawner;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
@@ -34,6 +35,8 @@ public class GravityGunMain extends JavaPlugin {
 	
 	public static HashMap<String, Entity> map = new HashMap<>();
 	public static HashMap<EntityFallingBlock, String> thrown = new HashMap<>();
+	public static HashMap<String, ItemStack[]> inventorys = new HashMap<>();
+	public static HashMap<String, CreatureSpawner> spawners = new HashMap<>();
 	
 	public static final UUID ID = UUID.fromString("5f473430-3275-4951-abc9-d39f4be8ce26");
 	

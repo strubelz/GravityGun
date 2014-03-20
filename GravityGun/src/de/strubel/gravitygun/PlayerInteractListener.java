@@ -7,6 +7,9 @@ import net.minecraft.server.v1_7_R1.World;
 
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Chest;
+import org.bukkit.block.CreatureSpawner;
 import org.bukkit.craftbukkit.v1_7_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_7_R1.entity.CraftFallingSand;
 import org.bukkit.craftbukkit.v1_7_R1.util.CraftMagicNumbers;
@@ -105,8 +108,6 @@ public class PlayerInteractListener implements Listener {
 							
 							return;
 						}
-						
-						try {
 							
 							if (ent instanceof FallingBlock) {
 								
@@ -136,12 +137,6 @@ public class PlayerInteractListener implements Listener {
 						p.getWorld().playSound(p.getLocation(), Sound.valueOf(plugin.getConfig().getString("Sound").toUpperCase()), plugin.getConfig().getInt("Sound-volume"), plugin.getConfig().getInt("Sound-pitch"));
 						
 							}
-						
-						} catch (Exception exc) {
-							GravityGunMain.log.warning("An Exception occured while moving a Entity!");
-							GravityGunMain.log.warning("This is a bug I can't fix, so I wrote this lines :)");
-							GravityGunMain.map.remove(p.getName());
-						}
 						
 						e.setCancelled(true);
 						
@@ -177,6 +172,20 @@ public class PlayerInteractListener implements Listener {
 					
 					b.setType(fb.getMaterial());
 					b.setData(fb.getBlockData());
+					
+					if (b.getType().equals(Material.CHEST)) {
+						((Chest)b.getState()).getInventory().setContents(GravityGunMain.inventorys.get(p.getName()));
+						GravityGunMain.inventorys.remove(p.getName());
+					}
+					
+					if (b.getType().equals(Material.MOB_SPAWNER)) {
+						CreatureSpawner cs = GravityGunMain.spawners.get(p.getName());
+						CreatureSpawner cs2 = (CreatureSpawner) b.getState();
+						
+						cs2.setDelay(cs.getDelay());
+						cs2.setSpawnedType(cs.getSpawnedType());
+						
+					}
 					
 					GravityGunMain.map.get(p.getName()).remove();
 					GravityGunMain.map.remove(p.getName());
@@ -223,13 +232,23 @@ public class PlayerInteractListener implements Listener {
 						}
 						}
 						
+						if (e.getClickedBlock().getType().equals(Material.CHEST)) {
+							BlockState bs = e.getClickedBlock().getState();
+							GravityGunMain.inventorys.put(p.getName(), ((Chest)bs).getInventory().getContents());
+							((Chest)bs).getInventory().clear();
+						}
+						
+						if (e.getClickedBlock().getType().equals(Material.MOB_SPAWNER)) {
+							GravityGunMain.spawners.put(p.getName(), ((CreatureSpawner)e.getClickedBlock().getState()));
+						}
+						
 						World mcWorld = ((CraftWorld)e.getPlayer().getWorld()).getHandle();
 						
 						NewBat bat = new NewBat(mcWorld);
 						Bat bukkitbat = (Bat) bat.getBukkitEntity();
 						bat.setPosition(e.getClickedBlock().getLocation().getX(), e.getClickedBlock().getLocation().getY(), e.getClickedBlock().getLocation().getZ());
 						
-					    Block b = CraftMagicNumbers.getBlock(e.getClickedBlock().getType());
+						Block b = CraftMagicNumbers.getBlock(e.getClickedBlock().getType());
 						e.getClickedBlock().setType(Material.AIR);
 						BetterFallingBlock falling = new BetterFallingBlock(mcWorld, e.getClickedBlock().getLocation().getX(), e.getClickedBlock().getLocation().getY() + 1, e.getClickedBlock().getLocation().getZ(), b, e.getClickedBlock().getData());
 						
