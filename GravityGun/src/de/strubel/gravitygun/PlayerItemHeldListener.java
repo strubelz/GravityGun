@@ -10,9 +10,7 @@ public class PlayerItemHeldListener implements Listener {
 	public void onPlayerItemHeld(PlayerItemHeldEvent e) {
 		
 		if (GravityGunMain.map.containsKey(e.getPlayer().getName())) {
-			
 			e.setCancelled(true);
-			
 		}
 		
 	}

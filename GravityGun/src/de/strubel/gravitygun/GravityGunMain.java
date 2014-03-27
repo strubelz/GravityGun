@@ -25,7 +25,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
 import com.griefcraft.lwc.LWC;
-
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 public class GravityGunMain extends JavaPlugin {
@@ -37,6 +36,7 @@ public class GravityGunMain extends JavaPlugin {
 	public static HashMap<EntityFallingBlock, String> thrown = new HashMap<>();
 	public static HashMap<String, ItemStack[]> inventorys = new HashMap<>();
 	public static HashMap<String, CreatureSpawner> spawners = new HashMap<>();
+	public static HashMap<String, Object> tilentities = new HashMap<>();
 	
 	public static final UUID ID = UUID.fromString("5f473430-3275-4951-abc9-d39f4be8ce26");
 	

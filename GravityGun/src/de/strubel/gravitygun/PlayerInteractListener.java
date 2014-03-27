@@ -5,11 +5,14 @@ import java.util.UUID;
 import net.minecraft.server.v1_7_R1.Block;
 import net.minecraft.server.v1_7_R1.World;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.BlockState;
-import org.bukkit.block.Chest;
+import org.bukkit.block.CommandBlock;
 import org.bukkit.block.CreatureSpawner;
+import org.bukkit.block.Sign;
+import org.bukkit.block.Skull;
 import org.bukkit.craftbukkit.v1_7_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_7_R1.entity.CraftFallingSand;
 import org.bukkit.craftbukkit.v1_7_R1.util.CraftMagicNumbers;
@@ -23,6 +26,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
@@ -48,7 +53,7 @@ public class PlayerInteractListener implements Listener {
 			return;
 		}
 		
-		Player p = e.getPlayer();
+		final Player p = e.getPlayer();
 		
 		if (e.getItem() == null) {
 			return;
@@ -168,23 +173,17 @@ public class PlayerInteractListener implements Listener {
 						
 						FallingBlock fb = (FallingBlock) ent.getPassenger();
 					
-					org.bukkit.block.Block b = ent.getWorld().getBlockAt(ent.getLocation());
+					final org.bukkit.block.Block b = ent.getWorld().getBlockAt(ent.getLocation());
 					
 					b.setType(fb.getMaterial());
 					b.setData(fb.getBlockData());
+							
+					Object o = GravityGunMain.tilentities.get(p.getName());
 					
-					if (b.getType().equals(Material.CHEST)) {
-						((Chest)b.getState()).getInventory().setContents(GravityGunMain.inventorys.get(p.getName()));
-						GravityGunMain.inventorys.remove(p.getName());
-					}
+					if (o != null) {
+							
+						PlayerInteractListener.setMeta(o, b.getLocation());
 					
-					if (b.getType().equals(Material.MOB_SPAWNER)) {
-						CreatureSpawner cs = GravityGunMain.spawners.get(p.getName());
-						CreatureSpawner cs2 = (CreatureSpawner) b.getState();
-						
-						cs2.setDelay(cs.getDelay());
-						cs2.setSpawnedType(cs.getSpawnedType());
-						
 					}
 					
 					GravityGunMain.map.get(p.getName()).remove();
@@ -232,15 +231,7 @@ public class PlayerInteractListener implements Listener {
 						}
 						}
 						
-						if (e.getClickedBlock().getType().equals(Material.CHEST)) {
-							BlockState bs = e.getClickedBlock().getState();
-							GravityGunMain.inventorys.put(p.getName(), ((Chest)bs).getInventory().getContents());
-							((Chest)bs).getInventory().clear();
-						}
-						
-						if (e.getClickedBlock().getType().equals(Material.MOB_SPAWNER)) {
-							GravityGunMain.spawners.put(p.getName(), ((CreatureSpawner)e.getClickedBlock().getState()));
-						}
+						GravityGunMain.tilentities.put(p.getName(), getMeta(e.getClickedBlock()));
 						
 						World mcWorld = ((CraftWorld)e.getPlayer().getWorld()).getHandle();
 						
@@ -279,6 +270,111 @@ public class PlayerInteractListener implements Listener {
 			
 		}
 		
+	}
+	
+	public static void setMeta(Object o, Location loc) {
+		
+		BlockState bs = loc.getWorld().getBlockAt(loc).getState();
+		
+		if (bs instanceof InventoryHolder && o instanceof ItemStack[]) {
+			
+			ItemStack[] i = (ItemStack[]) o;
+			
+			((InventoryHolder)bs).getInventory().setContents(i);
+			
+			bs.update(true);
+			return;
+		}
+		
+		if (bs instanceof Sign && o instanceof String[]) {
+			
+			String[] s = (String[]) o;
+			
+			((Sign)bs).setLine(0, s[0]);
+			((Sign)bs).setLine(1, s[1]);
+			((Sign)bs).setLine(2, s[2]);
+			((Sign)bs).setLine(3, s[3]);
+			
+			bs.update(true);
+			return;
+		}
+		
+		if (bs instanceof Skull && o instanceof SkullData) {
+			
+			SkullData sk = (SkullData) o;
+			
+			((Skull)bs).setOwner(sk.getName());
+			((Skull)bs).setRotation(sk.getRotation());
+			((Skull)bs).setSkullType(sk.getSkulltype());
+			
+			bs.update(true);
+			return;
+		}
+		
+		if (bs instanceof CommandBlock && o instanceof String) {
+			
+			
+			((CommandBlock)bs).setCommand((String) o);
+			
+			bs.update(true);
+			return;
+		}
+		
+		if (bs instanceof CreatureSpawner && o instanceof SpawnerData) {
+			
+			SpawnerData sd = (SpawnerData) o;
+			CreatureSpawner cs = (CreatureSpawner) bs;
+			
+			cs.setDelay(sd.getDelay());
+			cs.setSpawnedType(sd.getEntitytype());
+			
+			bs.update(true);
+			return;
+		}
+		
+	}
+	
+	public static Object getMeta(org.bukkit.block.Block b) {
+		
+		BlockState bs = b.getState();
+		
+		if (bs instanceof InventoryHolder) {
+			
+			return ((InventoryHolder)bs).getInventory().getContents();
+			
+		}
+		
+		if (bs instanceof Sign) {
+			
+			Sign s = (Sign) bs;
+			
+			return new String[]{s.getLine(0), s.getLine(1), s.getLine(2), s.getLine(3)};
+					
+		}
+		
+		if (bs instanceof Skull) {
+			
+			Skull s = (Skull) bs;
+			
+			return new SkullData(s.getOwner(), s.getSkullType(), s.getRotation());
+			
+		}
+		
+		if (bs instanceof CommandBlock) {
+			
+			return ((CommandBlock)bs).getCommand();
+			
+		}
+		
+		if (bs instanceof CreatureSpawner) {
+			
+			CreatureSpawner cs = (CreatureSpawner) bs;
+			
+			return new SpawnerData(cs.getDelay(), cs.getSpawnedType());
+			
+		}
+		
+		return null;
 	}
 	
 }
